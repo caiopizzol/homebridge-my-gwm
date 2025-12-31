@@ -219,6 +219,13 @@ export class GWMClient {
         batteryLevel: batteryRaw ? Number(batteryRaw) : 0,
         isCharging: chargingRaw === '1',
         acOn: findValue(SENSOR_CODES.acStatus) === '1',
+        // Windows: "1" = closed, "2" = open, "3" = partially open
+        windowFrontLeftClosed: findValue(SENSOR_CODES.windowFrontLeft) === '1',
+        windowFrontRightClosed: findValue(SENSOR_CODES.windowFrontRight) === '1',
+        windowRearLeftClosed: findValue(SENSOR_CODES.windowRearLeft) === '1',
+        windowRearRightClosed: findValue(SENSOR_CODES.windowRearRight) === '1',
+        // Sunroof: "3" = closed
+        sunroofClosed: findValue(SENSOR_CODES.sunroof) === '3',
         latitude: response.data.data.latitude
           ? Number.parseFloat(response.data.data.latitude)
           : undefined,
@@ -250,6 +257,22 @@ export class GWMClient {
 
   getCachedStatus(): VehicleStatus | null {
     return this.cachedStatus
+  }
+
+  async getRawStatus(): Promise<{ items: Array<{ code: number; value: string }> } | null> {
+    if (!(await this.authenticate())) {
+      return null
+    }
+
+    try {
+      const client = this.createApiClient()
+      const response = await client.get<VehicleStatusResponse>(
+        `/vehicle/getLastStatus?vin=${this.config.vin}&flag=true`,
+      )
+      return response.data?.data ?? null
+    } catch {
+      return null
+    }
   }
 
   private canSendCommand(): boolean {

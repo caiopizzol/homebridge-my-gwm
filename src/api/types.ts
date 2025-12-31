@@ -36,6 +36,11 @@ export interface VehicleStatus {
   batteryLevel: number
   isCharging: boolean
   acOn: boolean
+  windowFrontLeftClosed: boolean
+  windowFrontRightClosed: boolean
+  windowRearLeftClosed: boolean
+  windowRearRightClosed: boolean
+  sunroofClosed: boolean
   latitude?: number
   longitude?: number
   lastUpdated: Date

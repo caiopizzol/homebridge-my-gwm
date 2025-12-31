@@ -11,6 +11,7 @@ import { AirConditionerAccessory } from './accessories/airConditioner.js'
 import { BatteryAccessory } from './accessories/battery.js'
 import { DoorLockAccessory } from './accessories/doorLock.js'
 import { TrunkAccessory } from './accessories/trunk.js'
+import { WindowSensorAccessory } from './accessories/windowSensor.js'
 import { GWMClient } from './api/gwmClient.js'
 import type { GWMConfig, VehicleStatus } from './api/types.js'
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js'
@@ -111,6 +112,31 @@ export class GWMPlatform implements DynamicPlatformPlugin {
       }
 
       new info.AccessoryClass(this, accessory)
+    }
+
+    // Window and sunroof sensors
+    const windowSensors = [
+      { id: 'window-fl', name: 'Front Left Window', key: 'windowFrontLeftClosed' as const },
+      { id: 'window-fr', name: 'Front Right Window', key: 'windowFrontRightClosed' as const },
+      { id: 'window-rl', name: 'Rear Left Window', key: 'windowRearLeftClosed' as const },
+      { id: 'window-rr', name: 'Rear Right Window', key: 'windowRearRightClosed' as const },
+      { id: 'sunroof', name: 'Sunroof', key: 'sunroofClosed' as const },
+    ]
+
+    for (const sensor of windowSensors) {
+      const uuid = this.api.hap.uuid.generate(`${vin}-${sensor.id}`)
+      const displayName = `GWM ${sensor.name}`
+
+      let accessory = this.accessories.get(uuid)
+
+      if (!accessory) {
+        this.log.info('Adding new accessory:', displayName)
+        accessory = new this.api.platformAccessory(displayName, uuid)
+        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory])
+        this.accessories.set(uuid, accessory)
+      }
+
+      new WindowSensorAccessory(this, accessory, sensor.key, sensor.name)
     }
   }
 

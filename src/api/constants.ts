@@ -42,6 +42,11 @@ export const SENSOR_CODES = {
   batterySOC: 2013021,
   chargingStatus: 2041142,
   acStatus: 2202001,
+  windowFrontLeft: 2210001,
+  windowFrontRight: 2210002,
+  windowRearLeft: 2210003,
+  windowRearRight: 2210004,
+  sunroof: 2210005,
 } as const
 
 export const COMMAND_TIMEOUT_MS = 60000
