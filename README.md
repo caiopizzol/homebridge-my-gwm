@@ -1,5 +1,8 @@
 # Homebridge GWM Vehicle
 
+[![npm](https://img.shields.io/npm/v/homebridge-my-gwm)](https://www.npmjs.com/package/homebridge-my-gwm)
+[![homebridge](https://img.shields.io/badge/homebridge-%5E1.8.0-purple)](https://homebridge.io)
+
 Control your GWM vehicle (Haval, Ora, Tank) from Apple HomeKit.
 
 ## Features
