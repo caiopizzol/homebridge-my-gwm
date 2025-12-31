@@ -5,6 +5,7 @@ export interface GWMConfig {
   pin: string
   refreshInterval?: number
   acTemperature?: number
+  acDuration?: number
 }
 
 export interface AuthTokens {

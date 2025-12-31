@@ -259,6 +259,36 @@ export class GWMClient {
     return Date.now() - this.lastCommand.timestamp >= COMMAND_TIMEOUT_MS
   }
 
+  async getCommandResult(
+    seqNo: string,
+  ): Promise<{ remoteType: string; resultCode: string } | null> {
+    if (!(await this.authenticate())) {
+      return null
+    }
+
+    try {
+      const client = this.createApiClient()
+      const response = await client.get(
+        `/vehicle/getRemoteCtrlResultT5?seqNo=${seqNo}&vin=${this.config.vin}`,
+      )
+
+      if (response.data?.data?.[0]) {
+        return {
+          remoteType: response.data.data[0].remoteType,
+          resultCode: response.data.data[0].resultCode,
+        }
+      }
+      return null
+    } catch (err) {
+      this.log.error('Failed to get command result:', err)
+      return null
+    }
+  }
+
+  getLastSeqNo(): string | null {
+    return this.lastCommand?.seqNo ?? null
+  }
+
   private async sendCommand(
     serviceCode: string,
     instructions: Record<string, unknown>,
@@ -280,18 +310,20 @@ export class GWMClient {
 
     const seqNo = `${crypto.randomUUID().replace(/-/g, '')}1234`
 
+    const payload = {
+      instructions: {
+        [serviceCode]: instructions,
+      },
+      remoteType: 0,
+      securityPassword: md5(this.config.pin),
+      seqNo,
+      type: 2,
+      vin: this.config.vin,
+    }
+
     try {
       const client = this.createApiClient()
-      const response = await client.post('/vehicle/T5/sendCmd', {
-        instructions: {
-          [serviceCode]: instructions,
-        },
-        remoteType: 0,
-        securityPassword: md5(this.config.pin),
-        seqNo,
-        type: 2,
-        vin: this.config.vin,
-      })
+      const response = await client.post('/vehicle/T5/sendCmd', payload)
 
       this.lastCommand = { seqNo, timestamp: Date.now() }
 
@@ -333,12 +365,14 @@ export class GWMClient {
     })
   }
 
-  async controlAC(action: ACAction, temperature = 22): Promise<CommandResult> {
-    this.log.info(`A/C: turning ${action} at ${temperature}°C`)
+  async controlAC(action: ACAction, temperature = 22, duration = 15): Promise<CommandResult> {
+    this.log.info(`A/C: turning ${action} at ${temperature}°C for ${duration} min`)
     return this.sendCommand(SERVICE_CODES.ac, {
-      operationTime: '15',
-      switchOrder: action === 'ON' ? '1' : '2',
-      temperature: temperature.toString(),
+      airConditioner: {
+        operationTime: duration.toString(),
+        switchOrder: action === 'ON' ? '1' : '2',
+        temperature: temperature.toString(),
+      },
     })
   }
 }
