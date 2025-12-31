@@ -4,7 +4,7 @@ export const API_ENDPOINTS = {
   vehicle: 'https://br-app-gateway.gwmcloud.com/app-api/api/v1.0',
 } as const
 
-export const API_HEADERS = {
+export const LOGIN_HEADERS = {
   appid: '6',
   brand: '6',
   brandid: 'CCZ001',
@@ -15,6 +15,16 @@ export const API_HEADERS = {
   language: 'pt_BR',
   rs: '5',
   terminal: 'GW_PC_GWM',
+} as const
+
+export const VEHICLE_HEADERS = {
+  brand: '6',
+  country: 'BR',
+  language: 'pt_BR',
+  regioncode: 'BR',
+  rs: '2',
+  systemtype: '2',
+  terminal: 'GW_APP_GWM',
 } as const
 
 export const SERVICE_CODES = {
@@ -30,8 +40,8 @@ export const SENSOR_CODES = {
   doorLock: 2208001,
   trunkState: 2206001,
   batterySOC: 2013021,
-  chargingStatus: 2013009,
-  acStatus: 2122001,
+  chargingStatus: 2041142,
+  acStatus: 2202001,
 } as const
 
 export const COMMAND_TIMEOUT_MS = 60000
