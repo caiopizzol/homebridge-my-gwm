@@ -133,13 +133,14 @@ export class GWMClient {
         {
           account: this.config.username,
           password: md5(this.config.password),
-          deviceId: this.deviceId,
+          deviceid: this.deviceId,
         },
         {
           headers: {
             ...API_HEADERS,
             'Content-Type': 'application/json',
           },
+          httpsAgent: this.httpsAgent,
         },
       )
 

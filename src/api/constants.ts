@@ -5,17 +5,16 @@ export const API_ENDPOINTS = {
 } as const
 
 export const API_HEADERS = {
-  rs: '5',
-  terminal: 'GW_PC_GWM',
+  appid: '6',
   brand: '6',
   brandid: 'CCZ001',
-  language: 'pt_BR',
-  systemtype: '2',
-  regioncode: 'LA',
   country: 'BR',
-  appid: '6',
   devicetype: '0',
   enterpriseid: 'CC01',
+  gwid: '',
+  language: 'pt_BR',
+  rs: '5',
+  terminal: 'GW_PC_GWM',
 } as const
 
 export const SERVICE_CODES = {
