@@ -73,6 +73,8 @@ export class GWMClient {
         key,
         ca,
         rejectUnauthorized: false,
+        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
+        ciphers: 'DEFAULT:@SECLEVEL=0',
       })
     } catch (err) {
       this.log.warn('SSL certificates not found, using default agent:', err)
