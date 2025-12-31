@@ -230,10 +230,10 @@ export class GWMClient {
 
       this.log.debug(
         `Status: doors=${this.cachedStatus.doorLocked ? 'locked' : 'unlocked'}, ` +
-        `trunk=${this.cachedStatus.trunkClosed ? 'closed' : 'open'}, ` +
-        `battery=${this.cachedStatus.batteryLevel}%, ` +
-        `charging=${this.cachedStatus.isCharging}, ` +
-        `ac=${this.cachedStatus.acOn}`,
+          `trunk=${this.cachedStatus.trunkClosed ? 'closed' : 'open'}, ` +
+          `battery=${this.cachedStatus.batteryLevel}%, ` +
+          `charging=${this.cachedStatus.isCharging}, ` +
+          `ac=${this.cachedStatus.acOn}`,
       )
 
       return this.cachedStatus
