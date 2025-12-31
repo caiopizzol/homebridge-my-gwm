@@ -1,2 +1,2 @@
 # Auto-pull with rebase before pushing to avoid conflicts from CI version bumps
-git pull --rebase origin main || exit 1
+git pull --rebase --tags origin main || exit 1
