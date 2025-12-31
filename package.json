@@ -1,6 +1,6 @@
 {
   "name": "homebridge-my-gwm",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Homebridge plugin for GWM vehicles (Haval, Ora, Tank) - Control your car from Apple HomeKit",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
