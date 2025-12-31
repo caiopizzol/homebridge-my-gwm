@@ -40,6 +40,14 @@
         "default": 60,
         "minimum": 30,
         "description": "How often to poll the vehicle status (minimum 30 seconds)"
+      },
+      "acTemperature": {
+        "title": "A/C Temperature (°C)",
+        "type": "integer",
+        "default": 22,
+        "minimum": 16,
+        "maximum": 30,
+        "description": "Target temperature when turning on the A/C remotely"
       }
     }
   }

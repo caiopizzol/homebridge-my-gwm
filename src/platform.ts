@@ -50,7 +50,12 @@ export class GWMPlatform implements DynamicPlatformPlugin {
       vin: this.config.vin as string,
       pin: this.config.pin as string,
       refreshInterval: (this.config.refreshInterval as number) ?? 60,
+      acTemperature: (this.config.acTemperature as number) ?? 22,
     }
+  }
+
+  getACTemperature(): number {
+    return (this.config.acTemperature as number) ?? 22
   }
 
   async discoverDevices(): Promise<void> {

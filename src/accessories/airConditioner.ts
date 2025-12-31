@@ -40,10 +40,11 @@ export class AirConditionerAccessory {
 
   private async setACState(value: CharacteristicValue): Promise<void> {
     const shouldTurnOn = value as boolean
+    const temperature = this.platform.getACTemperature()
 
-    this.platform.log.info(`Setting A/C to: ${shouldTurnOn ? 'ON' : 'OFF'}`)
+    this.platform.log.info(`Setting A/C to: ${shouldTurnOn ? 'ON' : 'OFF'} at ${temperature}°C`)
 
-    const result = await this.platform.client.controlAC(shouldTurnOn ? 'ON' : 'OFF')
+    const result = await this.platform.client.controlAC(shouldTurnOn ? 'ON' : 'OFF', temperature)
 
     if (!result.result) {
       this.platform.log.error('Failed to control A/C:', result.message)
