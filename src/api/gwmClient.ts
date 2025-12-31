@@ -217,7 +217,7 @@ export class GWMClient {
         doorLocked: findValue(SENSOR_CODES.doorLock) === '0',
         trunkClosed: findValue(SENSOR_CODES.trunkState) === '0',
         batteryLevel: batteryRaw ? Number(batteryRaw) : 0,
-        isCharging: chargingRaw === '1' || chargingRaw === '3',
+        isCharging: chargingRaw === '1',
         acOn: findValue(SENSOR_CODES.acStatus) === '1',
         latitude: response.data.data.latitude
           ? Number.parseFloat(response.data.data.latitude)
@@ -230,10 +230,10 @@ export class GWMClient {
 
       this.log.debug(
         `Status: doors=${this.cachedStatus.doorLocked ? 'locked' : 'unlocked'}, ` +
-          `trunk=${this.cachedStatus.trunkClosed ? 'closed' : 'open'}, ` +
-          `battery=${this.cachedStatus.batteryLevel}%, ` +
-          `charging=${this.cachedStatus.isCharging}, ` +
-          `ac=${this.cachedStatus.acOn}`,
+        `trunk=${this.cachedStatus.trunkClosed ? 'closed' : 'open'}, ` +
+        `battery=${this.cachedStatus.batteryLevel}%, ` +
+        `charging=${this.cachedStatus.isCharging}, ` +
+        `ac=${this.cachedStatus.acOn}`,
       )
 
       return this.cachedStatus
