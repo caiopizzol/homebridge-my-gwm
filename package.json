@@ -1,0 +1,58 @@
+{
+  "name": "homebridge-my-gwm",
+  "version": "0.1.0",
+  "description": "Homebridge plugin for GWM vehicles (Haval, Ora, Tank) - Control your car from Apple HomeKit",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "check": "biome check --write src/",
+    "typecheck": "tsc --noEmit",
+    "precommit": "pnpm check && pnpm typecheck && pnpm build",
+    "prepublishOnly": "pnpm run build",
+    "prepare": "husky"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "gwm",
+    "haval",
+    "ora",
+    "tank",
+    "homekit",
+    "car",
+    "vehicle"
+  ],
+  "author": "Caio Pizzol",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caiopizzol/homebridge-my-gwm.git"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "homebridge": "^1.8.0"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "md5": "^2.3.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.10",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/git": "^10.0.1",
+    "@types/md5": "^2.3.6",
+    "@types/node": "^25.0.3",
+    "homebridge": "^1.11.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "semantic-release": "^25.0.2",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "homebridge": "^1.8.0"
+  },
+  "lint-staged": {
+    "*.{ts,js,json}": ["biome check --write"]
+  }
+}

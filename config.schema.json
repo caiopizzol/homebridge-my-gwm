@@ -1,0 +1,46 @@
+{
+  "pluginAlias": "GWMVehicle",
+  "pluginType": "platform",
+  "singular": true,
+  "headerDisplay": "Control your GWM vehicle (Haval, Ora, Tank) from Apple HomeKit",
+  "schema": {
+    "type": "object",
+    "required": ["username", "password", "vin", "pin"],
+    "properties": {
+      "name": {
+        "title": "Platform Name",
+        "type": "string",
+        "default": "GWM Vehicle"
+      },
+      "username": {
+        "title": "GWM Account Email",
+        "type": "string",
+        "required": true
+      },
+      "password": {
+        "title": "GWM Account Password",
+        "type": "string",
+        "required": true
+      },
+      "vin": {
+        "title": "Vehicle VIN",
+        "type": "string",
+        "required": true,
+        "description": "Your vehicle's VIN (Vehicle Identification Number)"
+      },
+      "pin": {
+        "title": "Remote Command PIN",
+        "type": "string",
+        "required": true,
+        "description": "The PIN used for remote commands in the My GWM app"
+      },
+      "refreshInterval": {
+        "title": "Status Refresh Interval (seconds)",
+        "type": "integer",
+        "default": 60,
+        "minimum": 30,
+        "description": "How often to poll the vehicle status (minimum 30 seconds)"
+      }
+    }
+  }
+}
