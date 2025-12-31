@@ -7,10 +7,11 @@ import type { Logger } from 'homebridge'
 import md5 from 'md5'
 import {
   API_ENDPOINTS,
-  API_HEADERS,
   COMMAND_TIMEOUT_MS,
+  LOGIN_HEADERS,
   SENSOR_CODES,
   SERVICE_CODES,
+  VEHICLE_HEADERS,
 } from './constants.js'
 import type {
   ACAction,
@@ -109,7 +110,7 @@ export class GWMClient {
     if (!this.tokens) {
       return true
     }
-    return Date.now() >= this.tokens.expiresAt - 60000 // 1 min buffer
+    return Date.now() >= this.tokens.expiresAt - 60000
   }
 
   private parseJwtExpiration(token: string): number {
@@ -139,7 +140,7 @@ export class GWMClient {
         },
         {
           headers: {
-            ...API_HEADERS,
+            ...LOGIN_HEADERS,
             'Content-Type': 'application/json',
           },
           httpsAgent: this.httpsAgent,
@@ -157,17 +158,22 @@ export class GWMClient {
         return true
       }
 
-      this.log.error('Authentication failed: No token received')
+      this.log.error('Authentication failed: No token in response')
       return false
-    } catch (err) {
-      this.log.error('Authentication failed:', err)
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: unknown }; message?: string }
+      if (axiosErr.response) {
+        this.log.error(`Authentication failed: ${axiosErr.response.status}`)
+      } else {
+        this.log.error('Authentication failed:', axiosErr.message)
+      }
       return false
     }
   }
 
   private getAuthHeaders(): Record<string, string> {
     return {
-      ...API_HEADERS,
+      ...VEHICLE_HEADERS,
       'Content-Type': 'application/json',
       accessToken: this.tokens?.accessToken ?? '',
       refreshToken: this.tokens?.refreshToken ?? '',
@@ -194,20 +200,24 @@ export class GWMClient {
       )
 
       if (!response.data?.data?.items) {
-        this.log.warn('No status data received')
+        this.log.warn('No vehicle data in response')
         return null
       }
 
       const items = response.data.data.items
+
       const findValue = (code: number): string | undefined => {
-        return items.find((item) => item.code === code)?.value
+        return items.find((item) => String(item.code) === String(code))?.value
       }
+
+      const batteryRaw = findValue(SENSOR_CODES.batterySOC)
+      const chargingRaw = findValue(SENSOR_CODES.chargingStatus)
 
       this.cachedStatus = {
         doorLocked: findValue(SENSOR_CODES.doorLock) === '0',
         trunkClosed: findValue(SENSOR_CODES.trunkState) === '0',
-        batteryLevel: Number.parseInt(findValue(SENSOR_CODES.batterySOC) ?? '0', 10),
-        isCharging: findValue(SENSOR_CODES.chargingStatus) === '1',
+        batteryLevel: batteryRaw ? Number(batteryRaw) : 0,
+        isCharging: chargingRaw === '1' || chargingRaw === '3',
         acOn: findValue(SENSOR_CODES.acStatus) === '1',
         latitude: response.data.data.latitude
           ? Number.parseFloat(response.data.data.latitude)
@@ -218,9 +228,22 @@ export class GWMClient {
         lastUpdated: new Date(),
       }
 
+      this.log.debug(
+        `Status: doors=${this.cachedStatus.doorLocked ? 'locked' : 'unlocked'}, ` +
+          `trunk=${this.cachedStatus.trunkClosed ? 'closed' : 'open'}, ` +
+          `battery=${this.cachedStatus.batteryLevel}%, ` +
+          `charging=${this.cachedStatus.isCharging}, ` +
+          `ac=${this.cachedStatus.acOn}`,
+      )
+
       return this.cachedStatus
-    } catch (err) {
-      this.log.error('Failed to get vehicle status:', err)
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: unknown }; message?: string }
+      if (axiosErr.response) {
+        this.log.error(`Failed to get status: ${axiosErr.response.status}`)
+      } else {
+        this.log.error('Failed to get status:', axiosErr.message)
+      }
       return this.cachedStatus
     }
   }
@@ -248,13 +271,14 @@ export class GWMClient {
       const waitTime = Math.ceil(
         (COMMAND_TIMEOUT_MS - (Date.now() - (this.lastCommand?.timestamp ?? 0))) / 1000,
       )
+      this.log.warn(`Command rate limited, wait ${waitTime}s`)
       return {
         result: false,
         message: `Please wait ${waitTime}s before sending another command`,
       }
     }
 
-    const seqNo = `${crypto.randomUUID()}1234`
+    const seqNo = `${crypto.randomUUID().replace(/-/g, '')}1234`
 
     try {
       const client = this.createApiClient()
@@ -271,48 +295,50 @@ export class GWMClient {
 
       this.lastCommand = { seqNo, timestamp: Date.now() }
 
-      if (response.data?.result === true) {
-        this.log.info('Command sent successfully')
+      if (response.data?.code === '000000') {
+        this.log.info('Command executed successfully')
         return { result: true, message: 'Command sent' }
       }
 
+      this.log.warn(`Command failed: ${response.data?.description || 'Unknown error'}`)
       return {
         result: false,
-        message: response.data?.message ?? 'Unknown error',
+        message: response.data?.description ?? 'Unknown error',
         code: response.data?.code,
       }
-    } catch (err) {
-      this.log.error('Failed to send command:', err)
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: unknown }; message?: string }
+      if (axiosErr.response) {
+        this.log.error(`Command failed: ${axiosErr.response.status}`)
+      } else {
+        this.log.error('Command failed:', axiosErr.message)
+      }
       return { result: false, message: 'Command failed' }
     }
   }
 
   async controlDoors(action: DoorAction): Promise<CommandResult> {
-    this.log.info(`Controlling doors: ${action}`)
+    this.log.info(`Door lock: ${action === 'CLOSE' ? 'locking' : 'unlocking'}`)
     return this.sendCommand(SERVICE_CODES.doors, {
-      doorLock: {
-        switchOrder: action === 'CLOSE' ? '2' : '1',
-      },
+      operationTime: '0',
+      switchOrder: action === 'CLOSE' ? '2' : '1',
     })
   }
 
   async controlTrunk(action: TrunkAction): Promise<CommandResult> {
-    this.log.info(`Controlling trunk: ${action}`)
+    this.log.info(`Trunk: ${action === 'CLOSE' ? 'closing' : 'opening'}`)
     return this.sendCommand(SERVICE_CODES.trunk, {
-      trunk: {
-        switchOrder: action === 'CLOSE' ? '2' : '1',
-      },
+      operationTime: '0',
+      switchOrder: action === 'CLOSE' ? '2' : '1',
     })
   }
 
   async controlAC(action: ACAction, temperature = 22): Promise<CommandResult> {
-    this.log.info(`Controlling A/C: ${action}`)
+    this.log.info(`A/C: turning ${action} at ${temperature}°C`)
     return this.sendCommand(SERVICE_CODES.ac, {
-      airConditioner: {
-        operationTime: '15',
-        switchOrder: action === 'ON' ? '1' : '2',
-        temperature: temperature.toString(),
-      },
+      operationTime: '15',
+      switchOrder: action === 'ON' ? '1' : '2',
+      temperature: temperature.toString(),
     })
   }
 }

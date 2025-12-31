@@ -19,6 +19,8 @@ export interface SensorData {
 }
 
 export interface VehicleStatusResponse {
+  code?: string
+  message?: string
   data: {
     items: SensorData[]
     latitude?: string
