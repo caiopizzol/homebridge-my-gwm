@@ -30,6 +30,13 @@ export interface VehicleStatusResponse {
   }
 }
 
+export interface TireData {
+  frontLeft: number
+  frontRight: number
+  rearLeft: number
+  rearRight: number
+}
+
 export interface VehicleStatus {
   doorLocked: boolean
   trunkClosed: boolean
@@ -44,6 +51,19 @@ export interface VehicleStatus {
   latitude?: number
   longitude?: number
   lastUpdated: Date
+  // Range & fuel
+  evRange: number
+  gasRange: number
+  fuelLevel: number
+  // Battery
+  auxiliaryBattery: number
+  // Odometer
+  odometer: number
+  // Charging
+  chargerConnected: boolean
+  // Tire monitoring
+  tirePressures: TireData
+  tireTemperatures: TireData
 }
 
 export interface CommandResult {

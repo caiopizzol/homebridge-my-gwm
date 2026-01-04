@@ -233,6 +233,29 @@ export class GWMClient {
           ? Number.parseFloat(response.data.data.longitude)
           : undefined,
         lastUpdated: new Date(),
+        // Range & fuel
+        evRange: Number(findValue(SENSOR_CODES.evRange)) || 0,
+        gasRange: Number(findValue(SENSOR_CODES.gasRange)) || 0,
+        fuelLevel: Number(findValue(SENSOR_CODES.fuelLevel)) || 0,
+        // Battery
+        auxiliaryBattery: Number(findValue(SENSOR_CODES.auxiliaryBattery)) || 0,
+        // Odometer
+        odometer: Number(findValue(SENSOR_CODES.odometer)) || 0,
+        // Charging (1 = connected)
+        chargerConnected: String(findValue(SENSOR_CODES.chargerConnected)) === '1',
+        // Tire monitoring
+        tirePressures: {
+          frontLeft: Number(findValue(SENSOR_CODES.tirePressureFrontLeft)) || 0,
+          frontRight: Number(findValue(SENSOR_CODES.tirePressureFrontRight)) || 0,
+          rearLeft: Number(findValue(SENSOR_CODES.tirePressureRearLeft)) || 0,
+          rearRight: Number(findValue(SENSOR_CODES.tirePressureRearRight)) || 0,
+        },
+        tireTemperatures: {
+          frontLeft: Number(findValue(SENSOR_CODES.tireTempFrontLeft)) || 0,
+          frontRight: Number(findValue(SENSOR_CODES.tireTempFrontRight)) || 0,
+          rearLeft: Number(findValue(SENSOR_CODES.tireTempRearLeft)) || 0,
+          rearRight: Number(findValue(SENSOR_CODES.tireTempRearRight)) || 0,
+        },
       }
 
       this.log.debug(

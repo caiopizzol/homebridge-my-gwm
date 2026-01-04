@@ -7,12 +7,31 @@ Control your GWM vehicle (Haval, Ora, Tank) from Apple HomeKit.
 
 ## Features
 
+### Controls
+
 | Accessory | HomeKit Service | Actions |
 |-----------|-----------------|---------|
 | Door Lock | Lock Mechanism | Lock / Unlock |
 | Trunk | Lock Mechanism | Open / Close |
-| A/C | Switch | On / Off |
-| Battery | Battery | View level & charging status |
+| A/C | Heater Cooler | On / Off with temperature |
+
+### Sensors
+
+| Accessory | HomeKit Service | Data |
+|-----------|-----------------|------|
+| Battery | Humidity Sensor | Battery SOC (%) |
+| 12V Battery | Humidity Sensor | Auxiliary battery (%) |
+| EV Range | Light Sensor | Electric range (km) |
+| Gas Range | Light Sensor | Fuel range (km) |
+| Odometer | Light Sensor | Total mileage (km) |
+| Charging Status | Contact Sensor | Charging / Not charging |
+| Charger Connected | Contact Sensor | Plugged in / Unplugged |
+| Windows (x4) | Contact Sensor | Open / Closed |
+| Sunroof | Contact Sensor | Open / Closed |
+| Tire Pressure (x4) | Light Sensor | Pressure (kPa) |
+| Tire Temperature (x4) | Temperature Sensor | Temperature (°C) |
+
+**Total: 23 accessories**
 
 ## Installation
 
@@ -61,8 +80,10 @@ Once configured, you can:
 - **"Hey Siri, lock my car"** - Lock the doors
 - **"Hey Siri, unlock my car"** - Unlock the doors
 - **"Hey Siri, turn on the A/C"** - Start climate control
-- **View battery level** in the Home app
-- **Create automations** based on vehicle state
+- **View battery level** and **EV/Gas range** in the Home app
+- **Monitor tire pressure and temperature** for all 4 tires
+- **Check charging status** and charger connection
+- **Create automations** based on vehicle state (e.g., notify when charging completes)
 
 ## Supported Regions
 

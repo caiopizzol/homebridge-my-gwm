@@ -8,8 +8,16 @@ import type {
   Service,
 } from 'homebridge'
 import { AirConditionerAccessory } from './accessories/airConditioner.js'
+import { AuxiliaryBatteryAccessory } from './accessories/auxiliaryBattery.js'
 import { BatteryAccessory } from './accessories/battery.js'
+import { ChargerConnectedAccessory } from './accessories/chargerConnected.js'
+import { ChargingStatusAccessory } from './accessories/chargingStatus.js'
 import { DoorLockAccessory } from './accessories/doorLock.js'
+import { EVRangeAccessory } from './accessories/evRange.js'
+import { GasRangeAccessory } from './accessories/gasRange.js'
+import { OdometerAccessory } from './accessories/odometer.js'
+import { type TirePosition, TirePressureAccessory } from './accessories/tirePressure.js'
+import { TireTemperatureAccessory } from './accessories/tireTemperature.js'
 import { TrunkAccessory } from './accessories/trunk.js'
 import { WindowSensorAccessory } from './accessories/windowSensor.js'
 import { GWMClient } from './api/gwmClient.js'
@@ -96,6 +104,12 @@ export class GWMPlatform implements DynamicPlatformPlugin {
       { id: 'trunk', name: 'Trunk', AccessoryClass: TrunkAccessory },
       { id: 'ac', name: 'Air Conditioner', AccessoryClass: AirConditionerAccessory },
       { id: 'battery', name: 'Battery', AccessoryClass: BatteryAccessory },
+      { id: 'ev-range', name: 'EV Range', AccessoryClass: EVRangeAccessory },
+      { id: 'gas-range', name: 'Gas Range', AccessoryClass: GasRangeAccessory },
+      { id: 'aux-battery', name: '12V Battery', AccessoryClass: AuxiliaryBatteryAccessory },
+      { id: 'odometer', name: 'Odometer', AccessoryClass: OdometerAccessory },
+      { id: 'charging-status', name: 'Charging', AccessoryClass: ChargingStatusAccessory },
+      { id: 'charger-connected', name: 'Charger', AccessoryClass: ChargerConnectedAccessory },
     ]
 
     for (const info of accessoryInfos) {
@@ -137,6 +151,43 @@ export class GWMPlatform implements DynamicPlatformPlugin {
       }
 
       new WindowSensorAccessory(this, accessory, sensor.key, sensor.name)
+    }
+
+    // Tire pressure sensors
+    const tirePositions: TirePosition[] = ['frontLeft', 'frontRight', 'rearLeft', 'rearRight']
+    const tireNames: Record<TirePosition, string> = {
+      frontLeft: 'Front Left',
+      frontRight: 'Front Right',
+      rearLeft: 'Rear Left',
+      rearRight: 'Rear Right',
+    }
+
+    for (const position of tirePositions) {
+      // Tire pressure
+      const pressureUuid = this.api.hap.uuid.generate(`${vin}-tire-pressure-${position}`)
+      const pressureName = `GWM ${tireNames[position]} Tire Pressure`
+
+      let pressureAccessory = this.accessories.get(pressureUuid)
+      if (!pressureAccessory) {
+        this.log.info('Adding new accessory:', pressureName)
+        pressureAccessory = new this.api.platformAccessory(pressureName, pressureUuid)
+        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [pressureAccessory])
+        this.accessories.set(pressureUuid, pressureAccessory)
+      }
+      new TirePressureAccessory(this, pressureAccessory, position)
+
+      // Tire temperature
+      const tempUuid = this.api.hap.uuid.generate(`${vin}-tire-temp-${position}`)
+      const tempName = `GWM ${tireNames[position]} Tire Temp`
+
+      let tempAccessory = this.accessories.get(tempUuid)
+      if (!tempAccessory) {
+        this.log.info('Adding new accessory:', tempName)
+        tempAccessory = new this.api.platformAccessory(tempName, tempUuid)
+        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [tempAccessory])
+        this.accessories.set(tempUuid, tempAccessory)
+      }
+      new TireTemperatureAccessory(this, tempAccessory, position)
     }
   }
 

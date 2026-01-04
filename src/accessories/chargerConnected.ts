@@ -1,26 +1,17 @@
 import type { CharacteristicValue, PlatformAccessory, Service } from 'homebridge'
 import type { GWMPlatform } from '../platform.js'
 
-type WindowStatusKey =
-  | 'windowFrontLeftClosed'
-  | 'windowFrontRightClosed'
-  | 'windowRearLeftClosed'
-  | 'windowRearRightClosed'
-  | 'sunroofClosed'
-
-export class WindowSensorAccessory {
+export class ChargerConnectedAccessory {
   private service: Service
 
   constructor(
     private readonly platform: GWMPlatform,
     private readonly accessory: PlatformAccessory,
-    private readonly statusKey: WindowStatusKey,
-    displayName: string,
   ) {
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)
       ?.setCharacteristic(this.platform.Characteristic.Manufacturer, 'GWM')
-      .setCharacteristic(this.platform.Characteristic.Model, 'Vehicle Window')
+      .setCharacteristic(this.platform.Characteristic.Model, 'Charger Connection')
       .setCharacteristic(
         this.platform.Characteristic.SerialNumber,
         this.platform.config.vin as string,
@@ -30,19 +21,18 @@ export class WindowSensorAccessory {
       this.accessory.getService(this.platform.Service.ContactSensor) ??
       this.accessory.addService(this.platform.Service.ContactSensor)
 
-    this.service.setCharacteristic(this.platform.Characteristic.Name, displayName)
+    this.service.setCharacteristic(this.platform.Characteristic.Name, 'Charger')
 
     this.service
       .getCharacteristic(this.platform.Characteristic.ContactSensorState)
-      .onGet(this.getContactState.bind(this))
+      .onGet(this.getChargerConnected.bind(this))
   }
 
-  private getContactState(): CharacteristicValue {
+  private getChargerConnected(): CharacteristicValue {
     const status = this.platform.getVehicleStatus()
-    const isClosed = status?.[this.statusKey] ?? true
-
-    // CONTACT_DETECTED = closed, CONTACT_NOT_DETECTED = open
-    return isClosed
+    const isConnected = status?.chargerConnected ?? false
+    // CONTACT_DETECTED (0) = connected, CONTACT_NOT_DETECTED (1) = disconnected
+    return isConnected
       ? this.platform.Characteristic.ContactSensorState.CONTACT_DETECTED
       : this.platform.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
   }
