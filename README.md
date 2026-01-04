@@ -72,6 +72,7 @@ Add to your Homebridge `config.json`:
 | `vin` | Yes | - | Vehicle Identification Number |
 | `pin` | Yes | - | Remote command PIN (from My GWM app) |
 | `refreshInterval` | No | `60` | Status polling interval in seconds (min: 30) |
+| `tirePressureUnit` | No | `psi` | Tire pressure unit: `psi`, `kPa`, or `bar` |
 
 ## Usage
 

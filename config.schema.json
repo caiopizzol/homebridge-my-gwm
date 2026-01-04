@@ -56,6 +56,13 @@
         "minimum": 1,
         "maximum": 30,
         "description": "How long the A/C runs when activated"
+      },
+      "tirePressureUnit": {
+        "title": "Tire Pressure Unit",
+        "type": "string",
+        "default": "psi",
+        "enum": ["psi", "kPa", "bar"],
+        "description": "Unit of measure for tire pressure sensors"
       }
     }
   }
